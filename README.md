@@ -18,10 +18,10 @@ Curated live TV playlist + channel menu for VLC on Windows.
 ## Install
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File install\install.ps1
+powershell -ExecutionPolicy RemoteSigned -File install\install.ps1
 ```
 
-Or run `install\install.ps1` from the repo root.
+Or run `install\install.ps1` from the repo root (plain double-click works too if your policy allows local scripts).
 
 What it does:
 
@@ -62,6 +62,23 @@ vlc-live-tv/
 - Keep HTML in sync with the playlist, or re-copy after structural changes
 - Re-run `install\install.ps1` (or copy the two files into `%APPDATA%\vlc`)
 
+## If your browser or antivirus blocks the ZIP
+
+Installer-style PowerShell (registry writes, shortcuts, config patches) is exactly what
+heuristic scanners flag, and new repos have no download reputation yet. The code is fully
+public here, so you can read every line before running it. Options:
+
+- **Content-only ZIP (no scripts):** grab `vlc-live-tv-content.zip` from
+  *Releases* on the repo page. Playlist + menu + Lua checker only; usually scans clean.
+  Use VLC directly with `livetv.m3u8` and the menu as in "Manual install" below.
+- **Keep the blocked download:** `chrome://downloads` -> the ZIP -> *Keep dangerous file*.
+- **Per-file downloads** from the repo page (below) are rarely blocked.
+
+The installer calls `Unblock-File` on everything it copies, and all launchers use
+`RemoteSigned` instead of a full policy override, so nothing on your machine needs policy overrides
+after install. The permanent fix for scanner reputation is a paid code-signing
+certificate; not worth it for a hobby project.
+
 ## Manual install (no scripts, no ZIP)
 
 If your browser blocks the ZIP (PowerShell installers often trip false positives) or you prefer zero scripts:
@@ -88,7 +105,7 @@ Just re-run `install\install.ps1` from the new version. It overwrites the payloa
 Close VLC, then run:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File install\uninstall.ps1
+powershell -ExecutionPolicy RemoteSigned -File install\uninstall.ps1
 ```
 
 It removes the playlist, menu, launchers, Lua files, logs, `.preinstall.bak` backups, the desktop shortcut and the `livetv://` protocol, and disables the n/p hotkeys in vlcrc. Browser stars (favorites) are kept.
