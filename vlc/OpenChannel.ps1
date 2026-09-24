@@ -3,9 +3,7 @@ param([Parameter(Mandatory = $true, Position = 0)][string]$Raw)
 $ErrorActionPreference = 'Stop'
 $u = $Raw.Trim().Trim('"')
 
-for ($i = 0; $i -lt 3; $i++) {
-    try { $u = [uri]::UnescapeDataString($u) } catch { break }
-}
+try { $u = [uri]::UnescapeDataString($u) } catch { }   # single layer: menu encodes once
 
 if ($u -match '^(?i)livetv://') { $u = $u.Substring(9) }
 if ($u -match '^(?i)livetv:') { $u = $u -replace '^(?i)livetv:', '' }
@@ -27,9 +25,23 @@ if ($u -notmatch '^(?i)https?://' -and $u -notmatch '^(?i)file:///') {
     exit 2
 }
 
-$vlc = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
+function Find-Vlc {
+  $cands = @(
+    'C:\Program Files\VideoLAN\VLC\vlc.exe',
+    'C:\Program Files (x86)\VideoLAN\VLC\vlc.exe',
+    (Join-Path $env:LOCALAPPDATA 'Programs\VideoLAN\VLC\vlc.exe')
+  )
+  foreach ($c in $cands) { if ($c -and (Test-Path $c)) { return $c } }
+  $w = Get-Command vlc.exe -ErrorAction SilentlyContinue
+  if ($w) { return $w.Source }
+  return $null
+}
+$vlc = Find-Vlc
+$log = Join-Path $env:APPDATA 'vlc\OpenChannel.debug.log'
+if (-not $vlc) {
+  Add-Content -LiteralPath $log ("REJECT u=$u raw=$Raw reason=vlc-not-found")
+  exit 3
+}
 $wd = Join-Path $env:APPDATA 'vlc'
 Start-Process -FilePath $vlc -WorkingDirectory $wd -ArgumentList @('--one-instance', $u)
-$log = Join-Path $env:APPDATA 'vlc\OpenChannel.debug.log'
-Add-Content -LiteralPath $log ("OK u=$u raw=$Raw")
 exit 0
