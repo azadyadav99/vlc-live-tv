@@ -1,7 +1,18 @@
-﻿# Live TV installer — copies playlist + menu + protocol handler into %APPDATA%\vlc
+# Live TV installer — copies playlist + menu + protocol handler into %APPDATA%\vlc
 # Requires VLC 3.x installed (default path below). Safe to re-run.
 $ErrorActionPreference = 'Stop'
-$VlcExe = 'C:\Program Files\VideoLAN\VLC\vlc.exe'
+function Find-Vlc {
+  $cands = @(
+    'C:\Program Files\VideoLAN\VLC\vlc.exe',
+    'C:\Program Files (x86)\VideoLAN\VLC\vlc.exe',
+    (Join-Path $env:LOCALAPPDATA 'Programs\VideoLAN\VLC\vlc.exe')
+  )
+  foreach ($c in $cands) { if ($c -and (Test-Path $c)) { return $c } }
+  $w = Get-Command vlc.exe -ErrorAction SilentlyContinue
+  if ($w) { return $w.Source }
+  return $null
+}
+$VlcExe = Find-Vlc
 $AppDataVlc = Join-Path $env:APPDATA 'vlc'
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 if (-not (Test-Path $RepoRoot)) { $RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot) }
@@ -16,8 +27,8 @@ Write-Host "Live TV installer" -ForegroundColor Cyan
 Write-Host "  VLC:  $VlcExe"
 Write-Host "  Dest: $AppDataVlc"
 
-if (-not (Test-Path $VlcExe)) {
-  Write-Warning "VLC not found at $VlcExe. Install VLC 3.x first, then re-run."
+if (-not $VlcExe) {
+  Write-Warning "VLC not found (checked Program Files, x86, LOCALAPPDATA and PATH). Install VLC 3.x first, then re-run."
   exit 1
 }
 if (-not (Test-Path $AppDataVlc)) {
@@ -57,8 +68,8 @@ foreach ($f in $files) {
 $vlcrc = Join-Path $AppDataVlc 'vlcrc'
 if (Test-Path $vlcrc) {
   $raw = [System.IO.File]::ReadAllText($vlcrc)
-  $raw = $raw -replace '(?m)^#?key-next=.*$', "key-next=n`t6"
-  $raw = $raw -replace '(?m)^#?key-prev=.*$', "key-prev=p`t4"
+  $raw = $raw -replace '(?m)^#?key-next=.*$', 'key-next=n'
+  $raw = $raw -replace '(?m)^#?key-prev=.*$', 'key-prev=p'
   $raw = $raw -replace '(?m)^#?qt-autoload-extensions=.*$', 'qt-autoload-extensions=1'
   [System.IO.File]::WriteAllText($vlcrc, $raw, (New-Object System.Text.UTF8Encoding($false)))
   Write-Host "  + vlcrc hotkeys (n/p) + extensions"
