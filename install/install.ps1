@@ -64,6 +64,12 @@ foreach ($f in $files) {
   Write-Host "  + $($f.D)"
 }
 
+# Remove the "downloaded from internet" marker so later runs need no policy overrides
+foreach ($f in @('OpenChannel.ps1', 'OpenChannel.cmd', 'StartLiveTV.cmd')) {
+  $up = Join-Path $AppDataVlc $f
+  if (Test-Path $up) { Unblock-File -Path $up -ErrorAction SilentlyContinue }
+}
+
 # vlcrc tweaks: next/prev hotkeys + autoload extensions
 $vlcrc = Join-Path $AppDataVlc 'vlcrc'
 if (Test-Path $vlcrc) {
