@@ -1,4 +1,4 @@
-﻿# Generate ChannelMenu.html from livetv.m3u8 (channel numbers + stars)
+# Generate ChannelMenu.html from livetv.m3u8 (channel numbers + stars)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $m3uPath = Join-Path $root 'playlist\livetv.m3u8'
@@ -425,7 +425,7 @@ foreach ($g in $order) {
     [void]$sb.Append('<div class="group" data-group="' + $eg + '">' + $eg + ' <span>(' + $count + ')</span></div>' + "`n")
   }
   foreach ($c in $list) {
-    $eh = Esc ('livetv://' + $c.U)
+    $eh = Esc ('livetv://' + [uri]::EscapeDataString($c.U))
     $full = $c.N + ' (' + $c.L + ')'
     $en = Esc $full
     $el = Esc $c.L
