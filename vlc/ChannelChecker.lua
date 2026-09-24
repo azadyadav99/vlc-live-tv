@@ -8,6 +8,7 @@ local id_to_uri = {}
 local id_to_name = {}
 local next_id = 1
 local btn_cancel = false
+local inp_limit = nil
 
 local PLAYLIST_CANDIDATES = {
     "livetv.m3u8",
@@ -213,7 +214,7 @@ function descriptor()
     return {
         title = "Channel Checker",
         version = "2.0",
-        author = "opencode",
+        author = "Azad Yadav",
         url = "",
         description = "All Channels list with Sony Sab first, plus channel health checks",
         capabilities = {"menu"}
@@ -268,7 +269,7 @@ end
 
 function show_all_channels()
     ensure_dialog("All Channels")
-    dlg:add_label("<b>All Channels</b> — Sony Sab is first. Select a channel, then Play Selected.", 1, 1, 8, 1)
+    dlg:add_label("<b>All Channels</b>. Sony Sab is first. Select a channel, then Play Selected.", 1, 1, 8, 1)
     lbl_status = dlg:add_label("Loading channels...", 1, 2, 8, 1)
     list_channels = dlg:add_list(1, 3, 8, 18)
     dlg:add_button("Play Selected", play_selected_cb, 1, 21, 3, 1)
@@ -342,8 +343,10 @@ function check_all_channels()
     dlg:add_label("<b>Check All Channels</b>", 1, 1, 8, 1)
     lbl_status = dlg:add_label("Starting...", 1, 2, 8, 1)
     list_channels = dlg:add_list(1, 3, 8, 18)
-    dlg:add_button("Cancel", function() btn_cancel = true end, 1, 21, 3, 1)
-    dlg:add_button("Close", deactivate, 4, 21, 3, 1)
+    dlg:add_label("Check first:", 1, 21, 1, 1)
+    inp_limit = dlg:add_text_input("200", 2, 21, 1, 1)
+    dlg:add_button("Cancel", function() btn_cancel = true end, 4, 21, 2, 1)
+    dlg:add_button("Close", deactivate, 6, 21, 2, 1)
     dlg:show()
 
     local entries = read_playlist_entries()
@@ -352,6 +355,9 @@ function check_all_channels()
         status("Playlist is empty.")
         return
     end
+    local limit = tonumber(inp_limit and inp_limit:get_text() or "") or 200
+    if limit < 1 then limit = total end
+    if limit > total then limit = total end
     list_channels:clear()
     id_to_uri = {}
     id_to_name = {}
@@ -366,9 +372,10 @@ function check_all_channels()
         f:write(string.format("Total: %d\n\n", total))
     end
 
+    status("VLC stays busy during a check. Results stream to channel_check_results.txt.")
     for i, ch in ipairs(entries) do
-        if btn_cancel then break end
-        status(string.format("Checking %d / %d ...", i, total))
+        if btn_cancel or i > limit then break end
+        status(string.format("Checking %d / %d ...", i, limit))
 
         local status_str = "FAIL"
         local stream = nil
