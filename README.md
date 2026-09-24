@@ -62,10 +62,21 @@ vlc-live-tv/
 - Keep HTML in sync with the playlist, or re-copy after structural changes
 - Re-run `install\install.ps1` (or copy the two files into `%APPDATA%\vlc`)
 
+## Upgrade
+
+Just re-run `install\install.ps1` from the new version. It overwrites the payload and re-patches VLC safely. (Close VLC first.)
+
 ## Uninstall
 
-Delete from `%APPDATA%\vlc`: `livetv.m3u8`, `ChannelMenu.html`, `OpenChannel.*`, `StartLiveTV.cmd`.  
-Remove the desktop shortcut. Optional: delete registry key `HKCU\Software\Classes\livetv`.
+Close VLC, then run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File install\uninstall.ps1
+```
+
+It removes the playlist, menu, launchers, Lua files, logs, `.preinstall.bak` backups, the desktop shortcut and the `livetv://` protocol, and disables the n/p hotkeys in vlcrc. Browser stars (favorites) are kept.
+
+Manual equivalent: delete from `%APPDATA%\vlc`: `livetv.m3u8`, `ChannelMenu.html`, `OpenChannel.*`, `StartLiveTV.cmd`, `lua\extensions\ChannelChecker.lua`, `lua\intf\LiveTVMenu.lua`. Remove the desktop shortcut. Optional: delete registry key `HKCU\Software\Classes\livetv`.
 
 ## License
 
