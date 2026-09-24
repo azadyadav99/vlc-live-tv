@@ -62,6 +62,23 @@ vlc-live-tv/
 - Keep HTML in sync with the playlist, or re-copy after structural changes
 - Re-run `install\install.ps1` (or copy the two files into `%APPDATA%\vlc`)
 
+## Manual install (no scripts, no ZIP)
+
+If your browser blocks the ZIP (PowerShell installers often trip false positives) or you prefer zero scripts:
+
+1. On the repo page, open each file and use its download (raw) button.
+2. Copy these into `%APPDATA%\vlc` (create the folder if missing):
+   `playlist\livetv.m3u8`, `menu\ChannelMenu.html`, `vlc\OpenChannel.cmd`, `vlc\OpenChannel.ps1`.
+3. Double-click `livetv.m3u8` to open VLC with the playlist; open `ChannelMenu.html` in your browser.
+
+Channel clicks use the `livetv://` protocol. Register it yourself (one-time, per user) if you skipped the installer:
+
+```
+reg add "HKCU\Software\Classes\livetv" /ve /d "URL:Live TV protocol" /f
+reg add "HKCU\Software\Classes\livetv" /v "URL Protocol" /t REG_SZ /d "" /f
+reg add "HKCU\Software\Classes\livetv\shell\open\command" /ve /d "\"%APPDATA%\vlc\OpenChannel.cmd\" \"%1\"" /f
+```
+
 ## Upgrade
 
 Just re-run `install\install.ps1` from the new version. It overwrites the payload and re-patches VLC safely. (Close VLC first.)
