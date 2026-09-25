@@ -1,4 +1,4 @@
-# Live TV uninstaller — removes playlist, menu, launchers, Lua bits, protocol and shortcut.
+﻿# Live TV uninstaller - removes playlist, menu, launchers, Lua bits, protocol and shortcut.
 # Close VLC first. Favorites (stars) live in your browser localStorage and are NOT touched.
 $ErrorActionPreference = 'Stop'
 $AppDataVlc = Join-Path $env:APPDATA 'vlc'
