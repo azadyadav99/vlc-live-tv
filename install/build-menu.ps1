@@ -1,4 +1,4 @@
-# Generate ChannelMenu.html from livetv.m3u8 (channel numbers + stars)
+﻿# Generate ChannelMenu.html from livetv.m3u8 (channel numbers + stars)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 $m3uPath = Join-Path $root 'playlist\livetv.m3u8'
@@ -399,7 +399,7 @@ $js = @'
 $sb = New-Object System.Text.StringBuilder
 [void]$sb.Append("<!DOCTYPE html>`n<html lang=""en""><head><meta charset=""utf-8"">`n")
 [void]$sb.Append("<meta name=""viewport"" content=""width=device-width,initial-scale=1"">`n")
-[void]$sb.Append("<title>Live TV — All Channels</title>`n<style>`n")
+[void]$sb.Append("<title>Live TV · All Channels</title>`n<style>`n")
 [void]$sb.Append($css)
 [void]$sb.Append("`n</style></head><body>`n")
 [void]$sb.Append("<header>`n")
