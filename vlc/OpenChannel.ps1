@@ -1,4 +1,4 @@
-param([Parameter(Mandatory = $true, Position = 0)][string]$Raw)
+﻿param([Parameter(Mandatory = $true, Position = 0)][string]$Raw)
 
 $ErrorActionPreference = 'Stop'
 $u = $Raw.Trim().Trim('"')
@@ -18,6 +18,8 @@ if ($u -match '^(?i)^https//') { $u = 'https://' + $u.Substring(8) }
 if ($u -match '^(?i)^http//') { $u = 'http://' + $u.Substring(7) }
 
 $u = $u.Trim().Trim('"')
+# some browsers append a slash (...m3u8/) which 404s on stream CDNs
+if ($u -match '\.[A-Za-z0-9]{1,5}/+$') { $u = $u -replace '/+$', '' }
 
 if ($u -notmatch '^(?i)https?://' -and $u -notmatch '^(?i)file:///') {
     $log = Join-Path $env:APPDATA 'vlc\OpenChannel.debug.log'
