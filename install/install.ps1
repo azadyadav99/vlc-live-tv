@@ -1,4 +1,4 @@
-# Live TV installer — copies playlist + menu + protocol handler into %APPDATA%\vlc
+﻿# Live TV installer - copies playlist + menu + protocol handler into %APPDATA%\vlc
 # Requires VLC 3.x installed (default path below). Safe to re-run.
 $ErrorActionPreference = 'Stop'
 function Find-Vlc {
@@ -74,13 +74,13 @@ foreach ($f in @('OpenChannel.ps1', 'OpenChannel.cmd', 'StartLiveTV.cmd')) {
 $vlcrc = Join-Path $AppDataVlc 'vlcrc'
 if (Test-Path $vlcrc) {
   $raw = [System.IO.File]::ReadAllText($vlcrc)
-  $raw = $raw -replace '(?m)^#?key-next=.*$', 'key-next=n'
-  $raw = $raw -replace '(?m)^#?key-prev=.*$', 'key-prev=p'
+  $raw = $raw -replace '(?m)^#?key-next=.*$', "key-next=n`t6"
+  $raw = $raw -replace '(?m)^#?key-prev=.*$', "key-prev=p`t4"
   $raw = $raw -replace '(?m)^#?qt-autoload-extensions=.*$', 'qt-autoload-extensions=1'
   [System.IO.File]::WriteAllText($vlcrc, $raw, (New-Object System.Text.UTF8Encoding($false)))
   Write-Host "  + vlcrc hotkeys (n/p) + extensions"
 } else {
-  Write-Warning "vlcrc not found — skipped hotkey patch"
+  Write-Warning "vlcrc not found. Skipped hotkey patch."
 }
 
 # livetv:// protocol
@@ -88,7 +88,7 @@ $reg = 'HKCU:\Software\Classes\livetv'
 New-Item -Path $reg -Force | Out-Null
 New-Item -Path "$reg\shell\open\command" -Force | Out-Null
 Set-Item -Path (Get-Item $reg).PSPath -Value 'URL:Live TV protocol'
-Set-Item -Path "HKCU:\Software\Classes\livetv\URL Protocol" -Value ''
+New-ItemProperty -Path $reg -Name 'URL Protocol' -Value '' -PropertyType String -Force | Out-Null
 $cmd = "`"$AppDataVlc\OpenChannel.cmd`" `"%1`""
 Set-Item -Path "$reg\shell\open\command" -Value $cmd
 Write-Host "  + livetv:// protocol"
